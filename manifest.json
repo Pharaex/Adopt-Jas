@@ -1,0 +1,11 @@
+{
+  "Name": "Adopt Jas",
+  "Author": "Phaerex",
+  "Version": "1.0.0",
+  "Description": "Allows the ability to adopt Jas after marrying",
+  "UniqueID": "Phaerex.Adopt_Jas",
+  "EntryDll": "Adopt_Jas.dll",
+  "MinimumApiVersion": "4.0.0",
+  "UpdateKeys": []
+
+}
