@@ -1,41 +1,51 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Utilities;
 using StardewValley;
 
 namespace Adopt_Jas
 {
-    /// <summary>The mod entry point.</summary>
     internal sealed class ModEntry : Mod
     {
-        /*********
-        ** Public methods
-        *********/
-        /// <summary>The mod entry point, called after the mod is first loaded.</summary>
-        /// <param name="helper">Provides simplified APIs for writing mods.</param>
+        // Flag to track if Jas is eligible for marriage (adoption)
+        private bool jasEligibleForMarriage = false;
+
         public override void Entry(IModHelper helper)
         {
-            // event += method to call
-            helper.Events.GameLoop.SaveLoaded += this.OnSaveLoaded;
+            // Event triggered when the day starts
+            helper.Events.GameLoop.DayStarted += this.OnDayStarted;
         }
 
-        /*********
-        ** Private methods
-        *********/
-        /// <summary>Raised after the save file is loaded.</summary>
-        /// <param name="sender">The event sender (nullable).</param>
-        /// <param name="e">The event data (nullable).</param>
-        private void OnSaveLoaded(object? sender, SaveLoadedEventArgs? e)
+        private void OnDayStarted(object? sender, DayStartedEventArgs? e)
         {
-            // ignore if player hasn't loaded a save yet
+            // Ensure the world is ready before performing actions
             if (!Context.IsWorldReady)
                 return;
 
-            if (!string.IsNullOrEmpty(Game1.player.spouse))
+            // Check if the player is married to Shane
+            if (!string.IsNullOrEmpty(Game1.player.spouse) && Game1.player.spouse == "Shane")
             {
-                this.Monitor.Log($"{Game1.player.Name} is married to {Game1.player.spouse}", LogLevel.Debug);
+                // Set Jas's eligibility for marriage (adoption) to true if married to Shane
+                jasEligibleForMarriage = true;
+                this.Monitor.Log($"Jas is eligible for adoption because {Game1.player.Name} is married to Shane.", LogLevel.Debug);
+
+                // Allow Jas to be "married" (adopted)
+                if (jasEligibleForMarriage)
+                {
+                    // Rename her marriage option to "Adopt"
+                    var jas = Game1.getCharacterFromName("Jas");
+                    if (jas != null)
+                    {
+                        // Simulate the "adopt" action by enabling marriage for Jas
+                        jas.canMarry = true; // Allow "marriage" to happen, but we will treat it as adoption
+                        this.Monitor.Log($"Jas can now be adopted.", LogLevel.Debug);
+                    }
+                }
+            }
+            else
+            {
+                jasEligibleForMarriage = false;
+                this.Monitor.Log($"Jas is not eligible for adoption because {Game1.player.Name} is not married to Shane.", LogLevel.Debug);
             }
         }
     }
