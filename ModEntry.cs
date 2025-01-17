@@ -18,35 +18,54 @@ namespace Adopt_Jas
 
         private void OnDayStarted(object? sender, DayStartedEventArgs? e)
         {
-            // Ensure the world is ready before performing actions
-            if (!Context.IsWorldReady)
-                return;
-
-            // Check if the player is married to Shane
-            if (!string.IsNullOrEmpty(Game1.player.spouse) && Game1.player.spouse == "Shane")
+            try
             {
-                // Set Jas's eligibility for marriage (adoption) to true if married to Shane
-                jasEligibleForMarriage = true;
-                this.Monitor.Log($"Jas is eligible for adoption because {Game1.player.Name} is married to Shane.", LogLevel.Debug);
+                //Attempt to update Jas's eligibility for adoption when a new day starts
+                UpdateJasEligibility();
+            }
+            catch (Exception ex)
+            {
+                //Log any exceptions if try is not successful
+                this.Monitor.Log($"An error occurred while updating Jas's eligibility: {ex.Message}", LogLevel.Error);
+            }
 
-                // Allow Jas to be "married" (adopted)
-                if (jasEligibleForMarriage)
+            //Update Jas's eligibility for adoption
+            void UpdateJasEligibility()
+            {
+                //Check if the player is married to Shane
+                if (Game1.player.spouse == "Shane")
                 {
-                    // Rename her marriage option to "Adopt"
-                    var jas = Game1.getCharacterFromName("Jas");
-                    if (jas != null)
-                    {
-                        // Simulate the "adopt" action by enabling marriage for Jas
-                        jas.canMarry = true; // Allow "marriage" to happen, but we will treat it as adoption
-                        this.Monitor.Log($"Jas can now be adopted.", LogLevel.Debug);
-                    }
+                    // Set Jas's eligibility for marriage (adoption) to true if married to Shane
+                    jasEligibleForMarriage = true; //Set Jas's eligibility for adoption to true
+                    this.Monitor.Log($"Jas is eligible for adoption because {Game1.player.Name} is married to Shane.", LogLevel.Debug);
+
+                    // Call EnableJasAdoption
+                    EnableJasAdoption();
+                }
+                else
+                {
+                    jasEligibleForMarriage = false; //False if not married to Shane
+                    this.Monitor.Log($"Jas is not eligible for adoption because {Game1.player.Name} is not married to Shane.", LogLevel.Debug);
                 }
             }
-            else
+
+            //Method to enable Jas's adoption option
+            void EnableJasAdoption()
             {
-                jasEligibleForMarriage = false;
-                this.Monitor.Log($"Jas is not eligible for adoption because {Game1.player.Name} is not married to Shane.", LogLevel.Debug);
+                // Rename her marriage option to "Adopt"
+                var jas = Game1.getCharacterFromName("Jas");
+                if (jas != null)
+                {
+                    // Simulate the "adopt" action by enabling marriage for Jas
+                    jas.canMarry = true; //Allow "marriage" to happen, treating it as adoption
+                    this.Monitor.Log($"Jas can now be adopted.", LogLevel.Debug);
+                }
+                else
+                {
+                    this.Monitor.Log("Failed to find Jas.", LogLevel.Error); //Log error if Jas is not found
+                }
             }
         }
+    }
     }
 }
